@@ -6,16 +6,18 @@ import { Sidebar } from './components/ui/Sidebar'
 import Dashboard from './components/Dashboard'
 import Auth from './components/auth/Auth'
 import { useSelector } from 'react-redux'
+import Companies from './components/Companies'
+import Subscription from './components/Subscription'
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const isAuthenticated = useSelector((state)=> state.auth.loggedIn)
 
   return (
     isAuthenticated ? (
       <div className='flex'>
         <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-12"}`}>
+        <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? "ml-55" : "ml-16"}`}>
           <nav className="flex items-center justify-between bg-white border-b p-3">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-200">
               <Menu className="h-6 w-6" />
@@ -40,6 +42,8 @@ function App() {
           <div className={"p-2"}>
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/companies" element={<Companies />} />
+              <Route path='/subscriptions' element={<Subscription />} />
             </Routes>
           </div>
         </div>

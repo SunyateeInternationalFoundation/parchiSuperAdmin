@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase";
 import { useDispatch } from "react-redux";
 import { setAuthState } from "../../store/adminSlice";
+import { useNavigate } from "react-router-dom";
 const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Auth = () => {
     emailOrPhone: "",
     password: "",
   });
+  const navigate = useNavigate()
   const dispatch = useDispatch();
 
   const emailOrPhoneRef = useRef(null);
@@ -67,6 +69,7 @@ const Auth = () => {
             token: user.accessToken,
             loggedIn: true,
           }));
+          navigate('/dashboard')
       } catch (error) {
         setErrors((prev) => ({
           ...prev,
