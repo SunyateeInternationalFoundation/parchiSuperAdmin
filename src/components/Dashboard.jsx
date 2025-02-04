@@ -73,17 +73,17 @@ const CompanyTable = ({ companies, setIsSidebarOpen }) => (
       </td>
       <td className="px-4 py-4 whitespace-nowrap">
         <button
-          className="text-gray-400 hover:text-gray-500 mr-2"
+          className="text-gray-400 hover:text-gray-500 mr-2 cursor-pointer"
           onClick={() =>
             setIsSidebarOpen({
               open: true,
-              company: company, // Pass the full company object here
+              company: company, 
             })
           }
         >
           ✏️
         </button>
-        <button className="text-gray-400 hover:text-gray-500">🗑️</button>
+        <button className="text-gray-400 hover:text-gray-500 cursor-alias">🗑️</button>
       </td>
     </tr>
   ))}
@@ -121,26 +121,20 @@ const Dashboard = () => {
         ...doc.data(),
       }));
       console.log("��� ~ fetchCompanies ~ companyList:", companyList);
-      // const mappedCompanies = companyList.map((company) => [
-      //   company.name || "N/A",
-      //   company.email || "N/A",
-      //   company.createdAt || "N/A",
-      //   company.users || "0",
-      //   company.plan || "Free",
-      //   company.status || "Inactive",
-      //   company.id,
-      // ]);
       setCompanies(companyList);
     };
-
     fetchCompanies();
   }, []);
+  useEffect(() => {
+    document.body.style.overflow = isSidebarOpen ? 'hidden' : 'auto';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isSidebarOpen]);
+  
   const handleEditClick = (company) => {
-    setCompanyDetails({
-      isOpen: true,
-      company: { company }, // Match the expected structure
-    }); // Set the company details
-    setIsSidebarOpen(true); // Open the sidebar
+    setCompanyDetails(
+       company
+    ); 
+    setIsSidebarOpen(true); 
   };
 
   const totalPages = Math.ceil(companies.length / companiesPerPage);

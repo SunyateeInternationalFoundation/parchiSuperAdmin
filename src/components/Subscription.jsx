@@ -1,47 +1,39 @@
-import { PenLine, Copy } from "lucide-react"
-import { useState } from "react"
-import AddSubscriptionSidebar from "./ui/AddSubscriptionSideBar"
+import { PenLine, Copy } from "lucide-react";
+import { useState, useEffect } from "react";
+import AddSubscriptionSidebar from "./ui/AddSubscriptionSideBar";
+import { db } from "../../firebase"; 
+import { collection, getDocs } from "firebase/firestore"; 
 
 const Subscription = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const plans = [
-    {
-      name: "Plan B",
-      monthlyPrice: 650.0,
-      annualPrice: 2500.0,
-      maxProducts: 100000,
-      enabledModules: [
-        "Stock Transfer",
-        "Expense",
-        "Sales Return",
-        "Reports",
-        "Stock Adjustment",
-        "Purchase Return",
-        "Reports Download",
-        "Quotation/Estimate",
-        "POS",
-      ],
-    },
-    {
-      name: "Default",
-      monthlyPrice: 0.0,
-      annualPrice: 0.0,
-      maxProducts: 5,
-      enabledModules: [
-        "Stock Transfer",
-        "Stock Adjustment",
-        "Expense",
-        "Quotation/Estimate",
-        "POS",
-        "Reports",
-        "Sales Return",
-        "Purchase Return",
-        "Online Store",
-        "Reports Download",
-      ],
-    },
-  ]
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);  
+  const [error, setError] = useState(null);  
 
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "plans"));
+        const fetchedPlans = querySnapshot.docs.map((doc) => doc.data());
+        console.log("Fetched plans: ", fetchedPlans);
+        setPlans(fetchedPlans);
+        setLoading(false);
+      } catch (error) {
+        setError("Failed to fetch subscription plans.");
+        setLoading(false);
+      }
+    };
+
+    fetchPlans();
+    
+    // Clean up overflow style when the sidebar closes
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isSidebarOpen]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -59,13 +51,13 @@ const Subscription = () => {
 
       <div className="mb-6 flex gap-4">
         <button className="flex items-center gap-2 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-        onClick={() => setIsSidebarOpen(true)}
+          onClick={() => setIsSidebarOpen(true)}
         >
           <span>+</span>
           Add New Subscription Plan
         </button>
         <button className="flex items-center gap-2 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
-          Free Trail Settings
+          Free Trial Settings
         </button>
       </div>
 
@@ -78,7 +70,6 @@ const Subscription = () => {
         </div>
       </div>
 
-      {/* Subscription Plans Table */}
       <div className="overflow-hidden rounded-lg bg-white shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -88,7 +79,7 @@ const Subscription = () => {
               </th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Name</th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Pricing Details</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Max Products</th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Max Count</th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Enabled Modules</th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Action</th>
             </tr>
@@ -101,13 +92,13 @@ const Subscription = () => {
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900">{plan.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-900">
-                  <div>Monthly Price: ${plan.monthlyPrice.toFixed(2)}</div>
-                  <div>Annual Price: ${plan.annualPrice.toFixed(2)}</div>
+                  <div>Monthly Price: ₹ {plan.monthlyPrice}</div>
+                  <div>Annual Price: ₹ {plan.annualPrice}</div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900">{plan.maxProducts.toLocaleString()}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{plan.maxProducts?.toLocaleString()}</td>
                 <td className="px-6 py-4">
                   <ul className="list-inside list-disc space-y-1 text-sm text-gray-900">
-                    {plan.enabledModules.map((module, idx) => (
+                    {plan.modules?.map((module, idx) => (
                       <li key={idx}>{module}</li>
                     ))}
                   </ul>
@@ -141,8 +132,7 @@ const Subscription = () => {
       </div>
       <AddSubscriptionSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
     </div>
-  )
-}
+  );
+};
 
-export default Subscription
-
+export default Subscription;

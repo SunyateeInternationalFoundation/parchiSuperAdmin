@@ -96,7 +96,7 @@ const Companies = () => {
   const companiesPerPage = 5;
 
   useEffect(() => {
-    // Disable body scroll when sidebar is open
+
     if (isSidebarOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -115,15 +115,6 @@ const Companies = () => {
         ...doc.data(),
       }));
       console.log("��� ~ fetchCompanies ~ companyList:", companyList);
-      // const mappedCompanies = companyList.map((company) => [
-      //   company.name || "N/A",
-      //   company.email || "N/A",
-      //   company.createdAt || "N/A",
-      //   company.users || "0",
-      //   company.plan || "Free",
-      //   company.status || "Inactive",
-      //   company.id,
-      // ]);
       setCompanies(companyList);
     };
 
@@ -152,7 +143,7 @@ const Companies = () => {
     >
     <button
     className="p-2 rounded-full bg-blue-500 hover:bg-blue-700 text-white text-sm font-medium"
-    onClick={handleEditClick}
+    onClick={handleNewCompanyClick}
     >Add Company</button>
       <div>
         <h1 className="text-2xl font-bold mb-6">Companies</h1>

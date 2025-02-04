@@ -48,9 +48,7 @@ const Auth = () => {
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters long.";
     }
-
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -65,6 +63,9 @@ const Auth = () => {
           formData.password
         );
         const user = res.user;
+        // store in user collection 
+        
+        // Store user data in Redux
         dispatch(setAuthState({
             token: user.accessToken,
             loggedIn: true,

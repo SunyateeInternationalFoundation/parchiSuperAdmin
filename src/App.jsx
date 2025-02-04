@@ -8,6 +8,7 @@ import Auth from './components/auth/Auth'
 import { useSelector } from 'react-redux'
 import Companies from './components/Companies'
 import Subscription from './components/Subscription'
+import SuperAdminList from './components/SuperAdminList'
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -44,6 +45,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/companies" element={<Companies />} />
               <Route path='/subscriptions' element={<Subscription />} />
+              <Route path='/super-admin' element={<SuperAdminList />} />
             </Routes>
           </div>
         </div>
