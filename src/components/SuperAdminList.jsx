@@ -1,8 +1,8 @@
-import { ChevronDown, Pencil, Search, UserCog } from "lucide-react";
-import { useEffect, useState } from "react";
-import AddAdminList from "./ui/AddAdminList";
-import { db } from "../../firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import { Pencil, Search, UserCog } from "lucide-react";
+import { useEffect, useState } from "react";
+import { db } from "../firebase";
+import AddAdminList from "./ui/AddAdminList";
 
 const SuperAdminList = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -11,7 +11,7 @@ const SuperAdminList = () => {
   const [searchType, setSearchType] = useState("name");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [ selectedAdmin, setSelectedAdmin] = useState("")
+  const [selectedAdmin, setSelectedAdmin] = useState("");
 
   const fetchAdmins = async () => {
     try {
@@ -27,7 +27,6 @@ const SuperAdminList = () => {
     }
   };
   useEffect(() => {
-    
     fetchAdmins();
   }, []);
 
@@ -131,11 +130,12 @@ const SuperAdminList = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <button className="text-blue-500 hover:bg-blue-50 p-2 rounded"
-                  onClick={()=>{
-                    setSelectedAdmin(admin)
-                    setIsSidebarOpen(true)
-                  }}
+                  <button
+                    className="text-blue-500 hover:bg-blue-50 p-2 rounded"
+                    onClick={() => {
+                      setSelectedAdmin(admin);
+                      setIsSidebarOpen(true);
+                    }}
                   >
                     <Pencil size={16} />
                   </button>

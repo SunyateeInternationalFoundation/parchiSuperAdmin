@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { db } from "../../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { db } from "../firebase";
 
 const Settings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -73,11 +73,17 @@ const Settings = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-lg">
+        Loading...
+      </div>
+    );
   }
 
   if (!user) {
-    return <div className="text-center mt-10 text-red-500">You are Super Admin</div>;
+    return (
+      <div className="text-center mt-10 text-red-500">You are Super Admin</div>
+    );
   }
 
   return (
@@ -111,7 +117,9 @@ const Settings = () => {
               placeholder="Enter Name"
             />
           ) : (
-            <h2 className="text-2xl font-semibold text-white mt-4">{user.name}</h2>
+            <h2 className="text-2xl font-semibold text-white mt-4">
+              {user.name}
+            </h2>
           )}
 
           {isEditing ? (
@@ -134,11 +142,26 @@ const Settings = () => {
 
           {isEditing ? (
             <div className="flex gap-2 mt-4">
-              <button onClick={handleSave} className="bg-green-500 text-white px-4 py-2 rounded">Save</button>
-              <button onClick={() => setIsEditing(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+              <button
+                onClick={handleSave}
+                className="bg-green-500 text-white px-4 py-2 rounded"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
             </div>
           ) : (
-            <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded mt-4">Edit</button>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+            >
+              Edit
+            </button>
           )}
         </div>
       </div>

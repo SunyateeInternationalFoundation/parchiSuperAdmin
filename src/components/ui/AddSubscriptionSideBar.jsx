@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { addDoc, collection, doc, setDoc, Timestamp } from "firebase/firestore";
 import { X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { db } from "../../../firebase";
-import { collection, addDoc, doc, setDoc, Timestamp } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const MODULE_OPTIONS = [
   { id: "analytics", name: "Analytics" },
@@ -14,7 +14,7 @@ const MODULE_OPTIONS = [
   { id: "sales", name: "Sales" },
   { id: "purchase", name: "Purchase" },
   { id: "customer", name: "Customer" },
-  { id: "staff", name: "Staff and Payout(HRM)" }
+  { id: "staff", name: "Staff and Payout(HRM)" },
 ];
 
 const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
@@ -26,7 +26,7 @@ const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
     monthlyPrice: "",
     annualPrice: "",
     modules: [],
-    createdAt: Timestamp.fromDate(new Date())
+    createdAt: Timestamp.fromDate(new Date()),
   });
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
         monthlyPrice: planData.monthlyPrice || "",
         annualPrice: planData.annualPrice || "",
         modules: planData.modules || [],
-        createdAt: planData.createdAt || Timestamp.fromDate(new Date())
+        createdAt: planData.createdAt || Timestamp.fromDate(new Date()),
       });
     }
   }, [planData]);
@@ -48,7 +48,7 @@ const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -59,7 +59,7 @@ const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
         ...prev,
         modules: isSelected
           ? prev.modules.filter((id) => id !== moduleId)
-          : [...prev.modules, moduleId]
+          : [...prev.modules, moduleId],
       };
     });
   };
@@ -68,9 +68,8 @@ const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
     e.preventDefault();
     try {
       if (planData) {
-        
-        const planRef = doc(db, "plans", planData.id); 
-        await setDoc(planRef, formData, { merge: true }); 
+        const planRef = doc(db, "plans", planData.id);
+        await setDoc(planRef, formData, { merge: true });
         console.log("Subscription Plan Updated:", formData);
       } else {
         // Add a new subscription plan
@@ -100,7 +99,10 @@ const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
           <h2 className="text-xl font-semibold">
             {`${planData ? "Edit" : "Add"} Subscription Plan`}
           </h2>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-100">
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 hover:bg-gray-100"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -158,7 +160,9 @@ const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
 
             {/* Modules Selection */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Modules</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Modules
+              </h3>
               <div className="grid grid-cols-2 gap-4">
                 {MODULE_OPTIONS.map((module) => (
                   <label key={module.id} className="flex items-center gap-2">
@@ -208,10 +212,17 @@ const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
 
             {/* Submit & Cancel */}
             <div className="bg-white border-t p-4 flex justify-between items-center">
-              <button type="button" onClick={onClose} className="border px-4 py-2 rounded-md">
+              <button
+                type="button"
+                onClick={onClose}
+                className="border px-4 py-2 rounded-md"
+              >
                 Cancel
               </button>
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-2 rounded-md"
+              >
                 {planData ? "Update" : "Create"}
               </button>
             </div>
