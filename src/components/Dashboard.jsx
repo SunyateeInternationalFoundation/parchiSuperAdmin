@@ -54,7 +54,7 @@ const CompanyTable = ({ companies, setIsSidebarOpen }) => (
       <td className="px-4 py-4">
         <ul>
           <li>Verified: ✗</li>
-          <li>Register Date: {company.createdAt}</li>
+          <li>Register Date:{company.createdAt ? new Date(company.createdAt.seconds * 1000).toLocaleDateString() : "NA"}</li>
           <li>Total Users: {company.users}</li>
         </ul>
       </td>

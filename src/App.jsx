@@ -9,6 +9,8 @@ import { useSelector } from 'react-redux'
 import Companies from './components/Companies'
 import Subscription from './components/Subscription'
 import SuperAdminList from './components/SuperAdminList'
+import Settings from './components/Settings'
+import Transactions from './components/Transaction'
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -46,6 +48,8 @@ function App() {
               <Route path="/companies" element={<Companies />} />
               <Route path='/subscriptions' element={<Subscription />} />
               <Route path='/super-admin' element={<SuperAdminList />} />
+              <Route path='/settings' element={<Settings />} />
+              <Route path='/transactions' element={<Transactions />} />
             </Routes>
           </div>
         </div>

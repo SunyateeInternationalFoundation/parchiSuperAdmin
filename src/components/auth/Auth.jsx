@@ -64,10 +64,11 @@ const Auth = () => {
         );
         const user = res.user;
         // store in user collection 
-        
+        console.log(user.uid)
         // Store user data in Redux
         dispatch(setAuthState({
             token: user.accessToken,
+            id: user.uid,
             loggedIn: true,
           }));
           navigate('/dashboard')

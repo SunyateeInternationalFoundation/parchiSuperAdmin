@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { db } from "../../../firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc, Timestamp } from "firebase/firestore";
 
 const MODULE_OPTIONS = [
   { id: "analytics", name: "Analytics" },
@@ -14,10 +14,10 @@ const MODULE_OPTIONS = [
   { id: "sales", name: "Sales" },
   { id: "purchase", name: "Purchase" },
   { id: "customer", name: "Customer" },
-  {id: "staff", name: "Staff and Payout(HRM)"}
+  { id: "staff", name: "Staff and Payout(HRM)" }
 ];
 
-const AddSubscriptionSidebar = ({ isOpen, onClose }) => {
+const AddSubscriptionSidebar = ({ isOpen, onClose, planData }) => {
   const [formData, setFormData] = useState({
     name: "",
     maxProducts: "",
@@ -25,14 +25,30 @@ const AddSubscriptionSidebar = ({ isOpen, onClose }) => {
     isPopular: false,
     monthlyPrice: "",
     annualPrice: "",
-    modules: [], // Store selected modules
+    modules: [],
+    createdAt: Timestamp.fromDate(new Date())
   });
+
+  useEffect(() => {
+    if (planData) {
+      setFormData({
+        name: planData.name || "",
+        maxProducts: planData.maxProducts || "",
+        description: planData.description || "",
+        isPopular: planData.isPopular || false,
+        monthlyPrice: planData.monthlyPrice || "",
+        annualPrice: planData.annualPrice || "",
+        modules: planData.modules || [],
+        createdAt: planData.createdAt || Timestamp.fromDate(new Date())
+      });
+    }
+  }, [planData]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : value
     }));
   };
 
@@ -43,29 +59,28 @@ const AddSubscriptionSidebar = ({ isOpen, onClose }) => {
         ...prev,
         modules: isSelected
           ? prev.modules.filter((id) => id !== moduleId)
-          : [...prev.modules, moduleId],
+          : [...prev.modules, moduleId]
       };
     });
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Add the subscription plan data to the Firestore 'plans' collection
-      await addDoc(collection(db, "plans"), {
-        name: formData.name,
-        maxProducts: formData.maxProducts,
-        description: formData.description,
-        isPopular: formData.isPopular,
-        monthlyPrice: formData.monthlyPrice,
-        annualPrice: formData.annualPrice,
-        modules: formData.modules, // Array of selected modules
-      });
-  
-      console.log("Subscription Plan Added:", formData);
-      onClose(); // Close the sidebar upon success
+      if (planData) {
+        
+        const planRef = doc(db, "plans", planData.id); 
+        await setDoc(planRef, formData, { merge: true }); 
+        console.log("Subscription Plan Updated:", formData);
+      } else {
+        // Add a new subscription plan
+        await addDoc(collection(db, "plans"), formData);
+        console.log("Subscription Plan Added:", formData);
+      }
+
+      onClose();
     } catch (error) {
-      console.error("Error adding subscription plan:", error);
+      console.error("Error saving subscription plan:", error);
     }
   };
 
@@ -82,7 +97,9 @@ const AddSubscriptionSidebar = ({ isOpen, onClose }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b p-4 bg-white">
-          <h2 className="text-xl font-semibold">Add New Subscription Plan</h2>
+          <h2 className="text-xl font-semibold">
+            {`${planData ? "Edit" : "Add"} Subscription Plan`}
+          </h2>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-100">
             <X className="h-5 w-5" />
           </button>
@@ -158,60 +175,44 @@ const AddSubscriptionSidebar = ({ isOpen, onClose }) => {
             </div>
 
             {/* Pricing Details */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Pricing</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Monthly Price <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative mt-1">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">₹</span>
-                    <input
-                      type="number"
-                      name="monthlyPrice"
-                      value={formData.monthlyPrice}
-                      onChange={handleInputChange}
-                      placeholder="Enter Monthly Price"
-                      className="block w-full rounded-md border pl-7 pr-3 py-2 shadow-sm focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Annual Price <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative mt-1">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">₹</span>
-                    <input
-                      type="number"
-                      name="annualPrice"
-                      value={formData.annualPrice}
-                      onChange={handleInputChange}
-                      placeholder="Enter Annual Price"
-                      className="block w-full rounded-md border pl-7 pr-3 py-2 shadow-sm focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Monthly Price <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="monthlyPrice"
+                  value={formData.monthlyPrice}
+                  onChange={handleInputChange}
+                  placeholder="Enter Monthly Price"
+                  className="block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Annual Price <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="annualPrice"
+                  value={formData.annualPrice}
+                  onChange={handleInputChange}
+                  placeholder="Enter Annual Price"
+                  className="block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-blue-500"
+                  required
+                />
               </div>
             </div>
 
-            {/* Fixed Footer with Submit and Cancel */}
+            {/* Submit & Cancel */}
             <div className="bg-white border-t p-4 flex justify-between items-center">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50 focus:ring-blue-500"
-              >
+              <button type="button" onClick={onClose} className="border px-4 py-2 rounded-md">
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-blue-500"
-              >
-                Create
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md">
+                {planData ? "Update" : "Create"}
               </button>
             </div>
           </form>

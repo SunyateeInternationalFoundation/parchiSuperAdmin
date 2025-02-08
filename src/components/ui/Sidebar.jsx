@@ -21,7 +21,7 @@ const navigation = [
   { name: "Offline Requests", to: "/offline-requests", icon: Clock },
   { name: "Email Queries", to: "/email-queries", icon: Mail },
   { name: "Super Admin", to: "/super-admin", icon: Shield },
-  { name: "Website Settings", to: "/website-settings", icon: Globe },
+  // { name: "Website Settings", to: "/website-settings", icon: Globe },
   { name: "Settings", to: "/settings", icon: Settings },
 ];
 

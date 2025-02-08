@@ -43,7 +43,7 @@ const CompanyTable = ({ companies, setIsSidebarOpen }) => (
               <td className="px-4 py-4">
                 <ul>
                   <li>Verified: ✗</li>
-                  <li>Register Date: {company.createdAt}</li>
+                  <li>Register Date: Register Date:{company.createdAt ? new Date(company.createdAt.seconds * 1000).toLocaleDateString() : "NA"}</li>
                   <li>Total Users: {company.users}</li>
                 </ul>
               </td>
@@ -137,48 +137,55 @@ const Companies = () => {
 
   return (
     <div
-      className={`p-4 md:p-6 bg-inherit max-h-screen ${
-        isSidebarOpen ? "opacity-50 pointer-events-none" : "opacity-100"
-      }`}
-    >
-    <button
-    className="p-2 rounded-full bg-blue-500 hover:bg-blue-700 text-white text-sm font-medium"
-    onClick={handleNewCompanyClick}
-    >Add Company</button>
-      <div>
-        <h1 className="text-2xl font-bold mb-6">Companies</h1>
-        <CompanyTable
-          companies={currentCompanies}
-          setIsSidebarOpen={handleEditClick}
-        />
-
-        <div className="flex justify-center items-center mt-6 mb-2">
-          <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="text-blue-500 mr-4"
-          >
-            Previous
-          </button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-            className="text-blue-500 ml-4"
-          >
-            Next
-          </button>
-        </div>
-
-          <CompanySidebar
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-            companyDetails={companyDetails}
-          />
-      </div>
+  className={`p-4 md:p-6 bg-inherit max-h-screen ${
+    isSidebarOpen ? "opacity-50 pointer-events-none" : "opacity-100"
+  }`}
+>
+  <div>
+    {/* Header Section with Flexbox */}
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-2xl font-bold">Companies</h1>
+      <button
+        className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 backdrop-blur-lg text-black text-sm font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
+        onClick={handleNewCompanyClick}
+      >
+        <span className="text-lg">➕</span> Add Company
+      </button>
     </div>
+
+    <CompanyTable
+      companies={currentCompanies}
+      setIsSidebarOpen={handleEditClick}
+    />
+
+    <div className="flex justify-center items-center mt-6 mb-2">
+      <button
+        onClick={() => setCurrentPage(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="text-blue-500 mr-4"
+      >
+        Previous
+      </button>
+      <span>
+        Page {currentPage} of {totalPages}
+      </span>
+      <button
+        onClick={() => setCurrentPage(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+        className="text-blue-500 ml-4"
+      >
+        Next
+      </button>
+    </div>
+
+    <CompanySidebar
+      isOpen={isSidebarOpen}
+      onClose={() => setIsSidebarOpen(false)}
+      companyDetails={companyDetails}
+    />
+  </div>
+</div>
+
   );
 };
 

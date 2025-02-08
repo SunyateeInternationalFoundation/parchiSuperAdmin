@@ -2,19 +2,23 @@ import { PenLine, Copy } from "lucide-react";
 import { useState, useEffect } from "react";
 import AddSubscriptionSidebar from "./ui/AddSubscriptionSideBar";
 import { db } from "../../firebase"; 
-import { collection, getDocs } from "firebase/firestore"; 
+import { collection, doc, getDocs } from "firebase/firestore"; 
 
 const Subscription = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);  
   const [error, setError] = useState(null);  
+  const [selectedPlan, setSelectedPlan] = useState("")
 
   useEffect(() => {
     const fetchPlans = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "plans"));
-        const fetchedPlans = querySnapshot.docs.map((doc) => doc.data());
+        const fetchedPlans = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         console.log("Fetched plans: ", fetchedPlans);
         setPlans(fetchedPlans);
         setLoading(false);
@@ -105,7 +109,12 @@ const Subscription = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
-                    <button className="rounded bg-blue-500 p-2 text-white hover:bg-blue-600">
+                    <button className="rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
+                    onClick={()=>{
+                      setSelectedPlan(plan)
+                      setIsSidebarOpen(true)
+                    }}
+                    >
                       <PenLine className="h-4 w-4" />
                     </button>
                     <button className="rounded bg-blue-500 p-2 text-white hover:bg-blue-600">
@@ -130,7 +139,7 @@ const Subscription = () => {
           </div>
         </div>
       </div>
-      <AddSubscriptionSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <AddSubscriptionSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} planData={selectedPlan} />
     </div>
   );
 };

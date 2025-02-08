@@ -3,10 +3,11 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { db, storage } from "../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, updateDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
+import axios from "axios";
 
 const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
-  console.log("🚀 ~ CompanySidebar ~ isOpen:", isOpen)
+  console.log("🚀 ~ CompanySidebar ~ isOpen:", isOpen);
   console.log("🚀 ~ CompanySidebar ~ companyDetails:", companyDetails);
   const [editedCompany, setEditedCompany] = useState({
     name: "",
@@ -17,22 +18,26 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
     address: "",
     city: "",
     logo: "",
+    zipCode: "",
   });
-  const [companyId, setCompanyId] = useState('');
+  const [userPhone, setUserPhone] = useState("")
+  const [companyId, setCompanyId] = useState("");
 
   useEffect(() => {
     if (companyDetails) {
       setEditedCompany({
         name: companyDetails?.company?.name || "",
-        shortName: companyDetails?.company?.shortName || companyDetails?.company?.name,
+        shortName:
+          companyDetails?.company?.shortName || companyDetails?.company?.name,
         email: companyDetails?.company?.email || "",
         phone: companyDetails?.company?.phone || "",
         status: companyDetails?.company?.status || "Active",
         address: companyDetails?.company?.address || "",
         city: companyDetails?.company?.city || "",
         logo: companyDetails?.company?.companyLogo || "",
+        zipCode: companyDetails?.company?.zipCode || "",
       });
-      setCompanyId(companyDetails?.company?.id)
+      setCompanyId(companyDetails?.company?.id);
     } else {
       setEditedCompany({
         name: "",
@@ -43,6 +48,7 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
         address: "",
         city: "",
         logo: "",
+        zipCode: "",
       });
     }
   }, [companyDetails]);
@@ -77,7 +83,7 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
         await uploadTask;
         logoUrl = await getDownloadURL(storageRef);
       }
-     console.log(companyId)
+      console.log(companyId);
       if (companyId) {
         const companyRef = doc(db, "companies", companyId);
         await updateDoc(companyRef, {
@@ -89,21 +95,62 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
           address: editedCompany.address,
           city: editedCompany.city,
           companyLogo: logoUrl,
+          zipCode: editedCompany.zipCode,
         });
-        console.log("Company details updated successfully!");
       } else {
-
         const newCompanyRef = collection(db, "companies");
-        await addDoc(newCompanyRef, {
-          name: editedCompany.name,
-          shortName: editedCompany.shortName,
-          email: editedCompany.email,
-          phone: editedCompany.phone,
-          status: editedCompany.status,
-          address: editedCompany.address,
-          city: editedCompany.city,
-          companyLogo: logoUrl,
-        });
+        const userRef = collection(db, "users");
+        const q = query(
+          userRef,
+          where("phone", "==", userPhone)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          alert("A company with this user phone number already exists!");
+          let userDocId = querySnapshot.docs[0].id
+          const userDocRef = doc(db, "users", userDocId);
+          await addDoc(newCompanyRef, {
+            name: editedCompany.name,
+            shortName: editedCompany.shortName,
+            email: editedCompany.email,
+            phone: editedCompany.phone,
+            status: editedCompany.status,
+            address: editedCompany.address,
+            city: editedCompany.city,
+            companyLogo: logoUrl,
+            zipCode: editedCompany.zipCode,
+            createdAt: Timestamp.fromDate(new Date()),
+            userRef: userDocRef
+          });
+        }else{
+          try {
+            const res = await axios
+          .post("https://addcompanywithoutotp-tacovxawma-uc.a.run.app",
+            {
+              phoneNumber: `+91${userPhone}`,  
+            }
+          )
+          if (res.status === 200) {
+            const userRef = res.data.userRef
+            await addDoc(newCompanyRef, {
+              name: editedCompany.name,
+              shortName: editedCompany.shortName,
+              email: editedCompany.email,
+              phone: editedCompany.phone,
+              status: editedCompany.status,
+              address: editedCompany.address,
+              city: editedCompany.city,
+              companyLogo: logoUrl,
+              zipCode: editedCompany.zipCode,
+              createdAt: Timestamp.fromDate(new Date()),
+              userRef,
+            });
+          }
+          } catch (error) {
+            console.error(error)
+            alert("Failed to add company without OTP. Please try again later!")
+          }
+        }
         console.log("New company added successfully!");
       }
       onClose();
@@ -122,11 +169,16 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
         className={`fixed right-0 top-0 h-full w-[600px] bg-white shadow-lg transform transition-transform duration-300 overflow-y-auto ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
-        style={{ transform: isOpen ? 'translateX(0)' : 'translateX(100%)' }}
+        style={{ transform: isOpen ? "translateX(0)" : "translateX(100%)" }}
       >
         <div className="flex items-center justify-between border-b p-3">
-          <h2 className="text-xl font-semibold">{companyId ? "Edit Company" : "Add Company"}</h2>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-100">
+          <h2 className="text-xl font-semibold">
+            {companyId ? "Edit Company" : "Add Company"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 hover:bg-gray-100"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -187,8 +239,25 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
                   required
                 />
               </div>
+              
+                <div className={``}>
+                <label className={`block text-sm font-medium text-gray-700 `}>
+                  User Phone <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="phone" 
+                  value={userPhone}
+                  onChange={(e)=> setUserPhone(e.target.value)}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 ${companyDetails &&"cursor-not-allowed"}`}
+                  required
+                  disabled={companyDetails}
+                />
+              </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">City</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  City
+                </label>
                 <input
                   type="text"
                   name="city"
@@ -198,7 +267,9 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Address</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Address
+                </label>
                 <input
                   type="text"
                   name="address"
@@ -207,46 +278,65 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
-              
-              <div className="rounded-lg flex flex-col sm:flex-row items-center justify-between h-30 border-gray-300 w-full">
-              {/* Left Side: Upload Icon and Text */}
-              <div className="flex flex-col items-center justify-center sm:mr-4 mb-4 sm:mb-0 border-2 border-dashed p-6 mt-3">
-                <svg
-                  className="w-12 h-12 text-gray-400 mb-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  ></path>
-                </svg>
-                <label className="cursor-pointer block text-sm font-medium text-gray-700" htmlFor="file-upload">
-                  Upload Logo
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Zipcode
                 </label>
                 <input
-                  id="file-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoChange}
-                  className="hidden"
+                  type="text"
+                  name="zipCode"
+                  value={editedCompany.zipCode}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
-              {/* Right Side: Image Preview */}
-              {editedCompany.logo && (
-                <div className="sm:ml-4 flex items-center justify-center mt-4 sm:mt-0">
-                  <img
-                    src={typeof editedCompany.logo === "string" ? editedCompany.logo : URL.createObjectURL(editedCompany.logo)}
-                    alt="Logo Preview"
-                    className="w-32 h-32 object-contain"
+
+              <div className="rounded-lg flex flex-col sm:flex-row items-center justify-between h-30 border-gray-300 w-full">
+                {/* Left Side: Upload Icon and Text */}
+                <div className="flex flex-col items-center justify-center sm:mr-4 mb-4 sm:mb-0 border-2 border-dashed p-6 mt-3">
+                  <svg
+                    className="w-12 h-12 text-gray-400 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    ></path>
+                  </svg>
+                  <label
+                    className="cursor-pointer block text-sm font-medium text-gray-700"
+                    htmlFor="file-upload"
+                  >
+                    Upload Logo
+                  </label>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="hidden"
                   />
                 </div>
-              )}
-            </div> 
+                {/* Right Side: Image Preview */}
+                {editedCompany.logo && (
+                  <div className="sm:ml-4 flex items-center justify-center mt-4 sm:mt-0">
+                    <img
+                      src={
+                        typeof editedCompany.logo === "string"
+                          ? editedCompany.logo
+                          : URL.createObjectURL(editedCompany.logo)
+                      }
+                      alt="Logo Preview"
+                      className="w-32 h-32 object-contain"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </form>
         </div>
@@ -260,7 +350,7 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
           </button>
           <button
             type="submit"
-            form="companyForm" 
+            form="companyForm"
             className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Save Changes
@@ -268,7 +358,7 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
         </div>
       </div>
     </div>,
-    document.getElementById('portal-root')
+    document.getElementById("portal-root")
   );
 };
 

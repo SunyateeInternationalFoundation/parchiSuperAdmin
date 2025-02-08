@@ -11,6 +11,7 @@ const SuperAdminList = () => {
   const [searchType, setSearchType] = useState("name");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [ selectedAdmin, setSelectedAdmin] = useState("")
 
   const fetchAdmins = async () => {
     try {
@@ -130,7 +131,12 @@ const SuperAdminList = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <button className="text-blue-500 hover:bg-blue-50 p-2 rounded">
+                  <button className="text-blue-500 hover:bg-blue-50 p-2 rounded"
+                  onClick={()=>{
+                    setSelectedAdmin(admin)
+                    setIsSidebarOpen(true)
+                  }}
+                  >
                     <Pencil size={16} />
                   </button>
                 </td>
@@ -175,6 +181,7 @@ const SuperAdminList = () => {
       <AddAdminList
         isOpen={isSidebarOpen}
         onClose={closeSidebar}
+        adminData={selectedAdmin}
       />
     </div>
   );
