@@ -10,7 +10,6 @@ const Subscription = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState("");
-
   useEffect(() => {
     const fetchPlans = async () => {
       try {
