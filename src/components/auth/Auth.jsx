@@ -1,10 +1,10 @@
-import React, { useState, useRef } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../../firebase";
+import { Eye, EyeOff } from "lucide-react";
+import React, { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { setAuthState } from "../../store/adminSlice";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../firebase";
+import { setAuthState } from "../../store/adminSlice";
 const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,7 +15,7 @@ const Auth = () => {
     emailOrPhone: "",
     password: "",
   });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const emailOrPhoneRef = useRef(null);
@@ -63,19 +63,21 @@ const Auth = () => {
           formData.password
         );
         const user = res.user;
-        // store in user collection 
-        console.log(user.uid)
+        // store in user collection
+        console.log(user.uid);
         // Store user data in Redux
-        dispatch(setAuthState({
+        dispatch(
+          setAuthState({
             token: user.accessToken,
             id: user.uid,
             loggedIn: true,
-          }));
-          navigate('/dashboard')
+          })
+        );
+        navigate("/dashboard");
       } catch (error) {
         setErrors((prev) => ({
           ...prev,
-          password: "Invalid email or password.", 
+          password: "Invalid email or password.",
         }));
         passwordRef.current.focus();
       }
@@ -189,7 +191,6 @@ const Auth = () => {
             >
               Reset Password
             </a>
-            
           </div>
         </form>
       </div>

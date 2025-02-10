@@ -1,10 +1,19 @@
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { X } from "lucide-react";
-import { db, storage } from "../../../firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { addDoc, collection, doc, updateDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
 import axios from "axios";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { db, storage } from "../../firebase";
 
 const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
   console.log("🚀 ~ CompanySidebar ~ isOpen:", isOpen);
@@ -20,7 +29,7 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
     logo: "",
     zipCode: "",
   });
-  const [userPhone, setUserPhone] = useState("")
+  const [userPhone, setUserPhone] = useState("");
   const [companyId, setCompanyId] = useState("");
 
   useEffect(() => {
@@ -100,14 +109,11 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
       } else {
         const newCompanyRef = collection(db, "companies");
         const userRef = collection(db, "users");
-        const q = query(
-          userRef,
-          where("phone", "==", userPhone)
-        );
+        const q = query(userRef, where("phone", "==", userPhone));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
           alert("A company with this user phone number already exists!");
-          let userDocId = querySnapshot.docs[0].id
+          let userDocId = querySnapshot.docs[0].id;
           const userDocRef = doc(db, "users", userDocId);
           await addDoc(newCompanyRef, {
             name: editedCompany.name,
@@ -120,35 +126,35 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
             companyLogo: logoUrl,
             zipCode: editedCompany.zipCode,
             createdAt: Timestamp.fromDate(new Date()),
-            userRef: userDocRef
+            userRef: userDocRef,
           });
-        }else{
+        } else {
           try {
-            const res = await axios
-          .post("https://addcompanywithoutotp-tacovxawma-uc.a.run.app",
-            {
-              phoneNumber: `+91${userPhone}`,  
+            const res = await axios.post(
+              "https://addcompanywithoutotp-tacovxawma-uc.a.run.app",
+              {
+                phoneNumber: `+91${userPhone}`,
+              }
+            );
+            if (res.status === 200) {
+              const userRef = res.data.userRef;
+              await addDoc(newCompanyRef, {
+                name: editedCompany.name,
+                shortName: editedCompany.shortName,
+                email: editedCompany.email,
+                phone: editedCompany.phone,
+                status: editedCompany.status,
+                address: editedCompany.address,
+                city: editedCompany.city,
+                companyLogo: logoUrl,
+                zipCode: editedCompany.zipCode,
+                createdAt: Timestamp.fromDate(new Date()),
+                userRef,
+              });
             }
-          )
-          if (res.status === 200) {
-            const userRef = res.data.userRef
-            await addDoc(newCompanyRef, {
-              name: editedCompany.name,
-              shortName: editedCompany.shortName,
-              email: editedCompany.email,
-              phone: editedCompany.phone,
-              status: editedCompany.status,
-              address: editedCompany.address,
-              city: editedCompany.city,
-              companyLogo: logoUrl,
-              zipCode: editedCompany.zipCode,
-              createdAt: Timestamp.fromDate(new Date()),
-              userRef,
-            });
-          }
           } catch (error) {
-            console.error(error)
-            alert("Failed to add company without OTP. Please try again later!")
+            console.error(error);
+            alert("Failed to add company without OTP. Please try again later!");
           }
         }
         console.log("New company added successfully!");
@@ -239,17 +245,19 @@ const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
                   required
                 />
               </div>
-              
-                <div className={``}>
+
+              <div className={``}>
                 <label className={`block text-sm font-medium text-gray-700 `}>
                   User Phone <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
-                  name="phone" 
+                  name="phone"
                   value={userPhone}
-                  onChange={(e)=> setUserPhone(e.target.value)}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 ${companyDetails &&"cursor-not-allowed"}`}
+                  onChange={(e) => setUserPhone(e.target.value)}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                    companyDetails && "cursor-not-allowed"
+                  }`}
                   required
                   disabled={companyDetails}
                 />
