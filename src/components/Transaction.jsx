@@ -1,17 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { Search, ChevronDown, Mail } from "lucide-react";
- // Using react-feather for icons
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const Transactions = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const transactionRef = collection(db, "transactions");
+        const snapshot = await getDocs(transactionRef);
+        const transactionList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log("Fetched transactions: ", transactionList);
+        setTransactions(transactionList);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-2">Transcations</h1>
+        <h1 className="text-2xl font-semibold text-gray-800 mb-2">
+          Transactions
+        </h1>
         <div className="flex items-center text-sm text-gray-500">
           <span>Dashboard</span>
           <span className="mx-2">-</span>
-          <span className="text-gray-700">Transcations</span>
+          <span className="text-gray-700">Transactions</span>
         </div>
       </div>
 
@@ -40,28 +67,59 @@ const Transactions = () => {
           <div>Action</div>
         </div>
 
-        {/* No Data State */}
-        <div className="flex flex-col items-center justify-center py-16">
-          <div className="bg-gray-100 rounded-full p-4 mb-4">
-            <Mail className="h-6 w-6 text-gray-400" />
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-6">
+            <p className="text-gray-500">Loading transactions...</p>
           </div>
-          <p className="text-gray-400">No data</p>
-        </div>
-      </div>
+        )}
 
-      {/* Sample data row (commented out) - uncomment and map through your data when available */}
-      {/* 
-      <div className="grid grid-cols-6 gap-4 px-6 py-4 border-b hover:bg-gray-50">
-        <div className="text-sm text-gray-900">2025-02-08</div>
-        <div className="text-sm text-gray-900">Company Name</div>
-        <div className="text-sm text-gray-900">#TRX-123456</div>
-        <div className="text-sm text-gray-900">2025-03-08</div>
-        <div className="text-sm text-gray-900">Credit Card</div>
-        <div>
-          <button className="text-blue-600 hover:text-blue-800">View</button>
-        </div>
+        {/* Transactions Data */}
+        {transactions.length > 0
+          ? transactions.map((transaction) => (
+              <div
+                key={transaction.id}
+                className="grid grid-cols-6 gap-4 px-6 py-4 border-b hover:bg-gray-50"
+              >
+                <div className="text-sm text-gray-900">
+                  {transaction?.createdAt
+                    ? new Date(
+                        transaction.createdAt.seconds * 1000
+                      ).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })
+                    : "N/A"}
+                </div>
+                <div className="text-sm text-gray-900">
+                  {transaction.company || "N/A"}
+                </div>
+                <div className="text-sm text-gray-900">
+                  {transaction.id || "N/A"}
+                </div>
+                <div className="text-sm text-gray-900">
+                  {transaction.nextPaymentDate || "N/A"}
+                </div>
+                <div className="text-sm text-gray-900">
+                  {transaction.method || "N/A"}
+                </div>
+                <div>
+                  <button className="text-blue-600 hover:text-blue-800">
+                    View
+                  </button>
+                </div>
+              </div>
+            ))
+          : !loading && (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="bg-gray-100 rounded-full p-4 mb-4">
+                  <Mail className="h-6 w-6 text-gray-400" />
+                </div>
+                <p className="text-gray-400">No transactions found</p>
+              </div>
+            )}
       </div>
-      */}
     </div>
   );
 };

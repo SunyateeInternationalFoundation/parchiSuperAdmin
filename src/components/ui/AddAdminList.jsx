@@ -26,7 +26,6 @@ const AddAdminList = ({ isOpen, onClose, adminData }) => {
         phone: adminData.phone || "",
         password: "", // Don't prefill password for security
         status: adminData.status || "Enabled",
-        profileImage: null,
         profileImageUrl: adminData.profileImageUrl || "",
         createdAt: adminData.createdAt || Timestamp.fromDate(new Date()),
       });
