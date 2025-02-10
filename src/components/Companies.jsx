@@ -186,26 +186,6 @@ const Companies = () => {
           companies={currentCompanies}
           setIsSidebarOpen={handleEditClick}
         />
-
-        {/* <div className="flex justify-center items-center mt-6 mb-2">
-          <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="text-blue-500 mr-4"
-          >
-            Previous
-          </button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-            className="text-blue-500 ml-4"
-          >
-            Next
-          </button>
-        </div> */}
         <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2">
             <select
