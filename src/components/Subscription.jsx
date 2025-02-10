@@ -1,7 +1,7 @@
 import { collection, getDocs } from "firebase/firestore";
 import { Copy, PenLine } from "lucide-react";
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import AddSubscriptionSidebar from "./ui/AddSubscriptionSideBar";
 
 const Subscription = () => {

@@ -1,6 +1,6 @@
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import CompanySidebar from "./ui/CompanySidebar";
 
 const CompanyTable = ({ companies, setIsSidebarOpen }) => (

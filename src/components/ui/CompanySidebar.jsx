@@ -13,7 +13,7 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { db, storage } from "../../firebase";
+import { db, storage } from "../../../firebase";
 
 const CompanySidebar = ({ isOpen, onClose, companyDetails }) => {
   console.log("🚀 ~ CompanySidebar ~ isOpen:", isOpen);

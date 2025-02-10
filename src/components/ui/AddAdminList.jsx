@@ -4,7 +4,7 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { auth, db, storage } from "../../firebase";
+import { auth, db, storage } from "../../../firebase";
 
 const AddAdminList = ({ isOpen, onClose, adminData }) => {
   const [formData, setFormData] = useState({

@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase";
+import { auth } from "../../../firebase";
 import { setAuthState } from "../../store/adminSlice";
 const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);

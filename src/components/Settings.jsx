@@ -14,7 +14,7 @@ import {
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { auth, db, storage } from "../firebase";
+import { auth, db, storage } from "../../firebase";
 
 const Settings = () => {
   const [userId, setUserId] = useState(null);

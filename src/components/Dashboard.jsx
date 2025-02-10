@@ -1,7 +1,7 @@
 import { collection, getDocs } from "firebase/firestore";
 import { AlertTriangle, Bell, Eye, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import CompanySidebar from "./ui/CompanySidebar";
 
 const StatCard = ({ icon: Icon, title, value, bgColor }) => (

@@ -1,7 +1,7 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { Pencil, Search, UserCog } from "lucide-react";
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import AddAdminList from "./ui/AddAdminList";
 
 const SuperAdminList = () => {

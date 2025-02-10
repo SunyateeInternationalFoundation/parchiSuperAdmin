@@ -2,7 +2,7 @@ import { addDoc, collection, doc, setDoc, Timestamp } from "firebase/firestore";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 
 const MODULE_OPTIONS = [
   { id: "analytics", name: "Analytics" },
