@@ -12,6 +12,7 @@ const SuperAdminList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedAdmin, setSelectedAdmin] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchAdmins = async () => {
     try {
@@ -22,7 +23,9 @@ const SuperAdminList = () => {
         ...doc.data(),
       }));
       setAdmins(adminList);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error(error);
     }
   };
@@ -111,60 +114,53 @@ const SuperAdminList = () => {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {displayedAdmins.map((admin) => (
-              <tr key={admin.id} className="border-b">
-                <td className="px-6 py-4">
-                  <input type="checkbox" className="rounded" />
-                </td>
-                <td className="px-6 py-4 flex items-center">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mr-3">
-                    <UserCog size={16} />
-                  </div>
-                  {admin.name}
-                </td>
-                <td className="px-6 py-4 text-sm">{admin.email}</td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 bg-green-100 text-green-600 rounded-full text-sm">
-                    Enabled
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button
-                    className="text-blue-500 hover:bg-blue-50 p-2 rounded"
-                    onClick={() => {
-                      setSelectedAdmin(admin);
-                      setIsSidebarOpen(true);
-                    }}
-                  >
-                    <Pencil size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+          {loading ? (
+            <tr>
+              <td
+                colSpan="5"
+                className="px-4 py-10 text-center text-lg font-medium text-gray-500"
+              >
+                Loading...
+              </td>
+            </tr>
+          ) : (
+            <tbody>
+              {displayedAdmins.map((admin) => (
+                <tr key={admin.id} className="border-b">
+                  <td className="px-6 py-4">
+                    <input type="checkbox" className="rounded" />
+                  </td>
+                  <td className="px-6 py-4 flex items-center">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mr-3">
+                      <UserCog size={16} />
+                    </div>
+                    {admin.name}
+                  </td>
+                  <td className="px-6 py-4 text-sm">{admin.email}</td>
+                  <td className="px-6 py-4">
+                    <span className="px-2 py-1 bg-green-100 text-green-600 rounded-full text-sm">
+                      Enabled
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      className="text-blue-500 hover:bg-blue-50 p-2 rounded"
+                      onClick={() => {
+                        setSelectedAdmin(admin);
+                        setIsSidebarOpen(true);
+                      }}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          )}
         </table>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center p-4 border-t">
-          <div className="flex items-center space-x-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="px-2 py-1 bg-blue-500 text-white rounded text-sm">
-              {currentPage}
-            </span>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
+        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2">
             <select
               className="border rounded-md px-3 py-1.5 text-sm outline-none"
               value={itemsPerPage}
@@ -175,6 +171,26 @@ const SuperAdminList = () => {
               <option value="50">50 / page</option>
               <option value="100">100 / page</option>
             </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="rounded border border-gray-300 px-3 py-1 text-sm disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span className="text-sm">
+              {" "}
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className="rounded border border-gray-300 px-3 py-1 text-sm"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
